@@ -39,8 +39,22 @@ app.get('/order', function(clientRequest, clientResponse) {
     const targetQuery = clientRequest.query;
 })
 
+app.post('/order', function(clientRequest, clientResponse) {
+    const targetQuery = clientRequest.body;
+})
+
 app.get('/', function(clientRequest, clientResponse) {
 
+})
+
+app.post('/currencyValue', function (clientRequest, clientResponse) {
+    const body = clientRequest.body;
+    clientResponse.send({text:'ЗБС'});
+})
+
+app.get('/currencyValue', function (clientRequest, clientResponse) {
+    const targetQuery = clientRequest.query;
+    clientResponse.send({first:'1', seccond: '2'});
 })
 
 
