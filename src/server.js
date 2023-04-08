@@ -31,6 +31,32 @@ app.get('/adminsList', function(clientRequest, clientResponse) {
 
 })
 
+app.get('/currencyList', function(clientRequest, clientResponse) {
+    const currencyList = ref(database, 'currency/');
+    onValue(currencyList, (snapshot) => {
+        const data = snapshot.val();
+        clientResponse.send(JSON.stringify(data));
+        }, {
+            onlyOnce: true
+        });
+})
+
+app.post('/currencyValue', function (clientRequest, clientResponse) {
+    const body = clientRequest.body;
+    console.log(body);
+    update(ref(database, `currency/${body.currenyName}`), {
+        value: body.value
+    });
+    const currencyData = ref(database, `currency/${body.currenyName}`);
+    onValue(currencyData, (snapshot) => {
+        const data = snapshot.val();
+        clientResponse.send(JSON.stringify(data));
+    }, {
+        onlyOnce: true
+    })
+    
+})
+
 app.get('/usersList', function(clientRequest, clientResponse) {
     const targetQuery = clientRequest.query
 })
@@ -47,10 +73,7 @@ app.get('/', function(clientRequest, clientResponse) {
 
 })
 
-app.post('/currencyValue', function (clientRequest, clientResponse) {
-    const body = clientRequest.body;
-    clientResponse.send({text:'ЗБС'});
-})
+
 
 app.get('/currencyValue', function (clientRequest, clientResponse) {
     const targetQuery = clientRequest.query;

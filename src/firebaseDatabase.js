@@ -6,7 +6,7 @@ import { getDatabase } from "firebase/database";
 const firebaseConfig = {
   // ...
   // The value of `databaseURL` depends on the location of the database
-  databaseURL: "https://stonksfire-27e1c-default-rtdb.europe-west1.firebasedatabase.app/",
+  databaseURL: "https://vikingbit-2eb4a-default-rtdb.europe-west1.firebasedatabase.app/",
 };
 
 // Initialize Firebase
