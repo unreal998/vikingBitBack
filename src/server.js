@@ -34,6 +34,20 @@ app.post('/auth', function(clientRequest, clientResponse) {
     });
 });
 
+app.put('/user', function(clientRequest, clientResponse) {
+    const body = clientRequest.body;
+    const userData = {
+        firstName: body.first_name,
+        lastName: body.last_name,
+        userName: body.username,
+        type: 'user',
+        id: body.id
+    }
+    set(ref(database, `users/${body.id}`), userData);
+    clientResponse.send(JSON.stringify(userData));
+
+})
+
 app.get('/adminsList', function(clientRequest, clientResponse) {
 
 })
@@ -109,26 +123,7 @@ app.get('/orders', function(clientRequest, clientResponse) {
 
 app.put('/orders', function(clientRequest, clientResponse) {
     const body = clientRequest.body;
-    console.log(body);
-    set(ref(database, `orders/${body.transactionID}`), {
-        transactionID: body.transactionID,
-        currency: body.currency,
-        fromSum: body.fromSum,
-        toSum: body.toSum,
-        coupon: body.coupon,
-        wallet: body.wallet,
-        cardName: body.cardName,
-        login: body.login,
-        timestamp: body.timestamp,
-        status: body.status
-    });
-    const currencyData = ref(database, `orders/${body.transactionID}`);
-    onValue(currencyData, (snapshot) => {
-        const data = snapshot.val();
-        clientResponse.send(JSON.stringify(data));
-    }, {
-        onlyOnce: true
-    })
+    set(ref(database, `orders/${body.transactionID}`), body);
 })
 
 app.post('/orders', function(clientRequest, clientResponse) {
