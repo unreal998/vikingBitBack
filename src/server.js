@@ -25,6 +25,13 @@ const __dirname = path.resolve();
 
 app.post('/auth', function(clientRequest, clientResponse) {
     const body = clientRequest.body;
+    const currencyData = ref(database, `users/${body.id}`);
+    onValue(currencyData, (snapshot) => {
+        const data = snapshot.val();
+        clientResponse.send(JSON.stringify(data));
+    }, {
+        onlyOnce: true
+    });
 });
 
 app.get('/adminsList', function(clientRequest, clientResponse) {
@@ -54,7 +61,36 @@ app.post('/currencyValue', function (clientRequest, clientResponse) {
     }, {
         onlyOnce: true
     })
-    
+})
+
+app.post('/currencyReserves', function (clientRequest, clientResponse) {
+    const body = clientRequest.body;
+    update(ref(database, `currency/${body.currenyName}`), {
+        reserve: body.value
+    });
+    const currencyData = ref(database, `currency/${body.currenyName}`);
+    onValue(currencyData, (snapshot) => {
+        const data = snapshot.val();
+        console.log(data);
+        clientResponse.send(JSON.stringify(data));
+    }, {
+        onlyOnce: true
+    })
+})
+
+app.post('/minExchange', function (clientRequest, clientResponse) {
+    const body = clientRequest.body;
+    update(ref(database, `currency/${body.currenyName}`), {
+        minExchange: body.value
+    });
+    const currencyData = ref(database, `currency/${body.currenyName}`);
+    onValue(currencyData, (snapshot) => {
+        const data = snapshot.val();
+        console.log(data);
+        clientResponse.send(JSON.stringify(data));
+    }, {
+        onlyOnce: true
+    })
 })
 
 app.get('/usersList', function(clientRequest, clientResponse) {
@@ -65,21 +101,45 @@ app.get('/order', function(clientRequest, clientResponse) {
     const targetQuery = clientRequest.query;
 })
 
-app.post('/order', function(clientRequest, clientResponse) {
+app.put('/order', function(clientRequest, clientResponse) {
+    // const targetQuery = clientRequest.body;
+    // set(ref(database, `orders/${targetQuery.transactionID}`), targetQuery);
+    // const usersList = ref(database, `users`);
+    // const adminsList = null;
+    // onValue(currencyData, (snapshot) => {
+    //     adminsList = snapshot.val();
+    // }, {
+    //     onlyOnce: true
+    // });
+    // const messageUrl = `${urlTelegaMessage}${telegaToken}/sendMessage?chat_id=${body.chatId}&text=${JSON.stringify(body)}`
+    // axios.get(messageUrl).catch(error => {
+    //     console.log(error);
+    // })
+    // clientResponse.send(JSON.stringify({data: 'good'}));
+
+})
+
+app.put('/user', function(clientRequest, clientResponse) {
     const targetQuery = clientRequest.body;
+    const userData = {
+        id: targetQuery.id,
+        firstName: targetQuery.first_name || "",
+        lastName : targetQuery.last_name || "",
+        username: targetQuery.username || "",
+        type: 'user'
+    }
+    set(ref(database, `users/${targetQuery.id}`), userData);
+    clientResponse.end(JSON.stringify(userData))
 })
 
 app.get('/', function(clientRequest, clientResponse) {
 
 })
 
-
-
 app.get('/currencyValue', function (clientRequest, clientResponse) {
     const targetQuery = clientRequest.query;
     clientResponse.send({first:'1', seccond: '2'});
 })
-
 
 app.get('/test', function(clientRequest, clientResponse) {
     clientResponse.end("Hello world");
