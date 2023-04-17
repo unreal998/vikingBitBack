@@ -97,8 +97,8 @@ app.get('/usersList', function(clientRequest, clientResponse) {
     const targetQuery = clientRequest.query
 })
 
-app.get('/order', function(clientRequest, clientResponse) {
-    const currencyList = ref(database, 'order/');
+app.get('/orders', function(clientRequest, clientResponse) {
+    const currencyList = ref(database, 'orders/');
     onValue(currencyList, (snapshot) => {
         const data = snapshot.val();
         clientResponse.send(JSON.stringify(data));
@@ -107,10 +107,10 @@ app.get('/order', function(clientRequest, clientResponse) {
     });
 })
 
-app.put('/order', function(clientRequest, clientResponse) {
+app.put('/orders', function(clientRequest, clientResponse) {
     const body = clientRequest.body;
     console.log(body);
-    set(ref(database, `order/${body.transactionID}`), {
+    set(ref(database, `orders/${body.transactionID}`), {
         transactionID: body.transactionID,
         currency: body.currency,
         fromSum: body.fromSum,
@@ -122,7 +122,7 @@ app.put('/order', function(clientRequest, clientResponse) {
         timestamp: body.timestamp,
         status: body.status
     });
-    const currencyData = ref(database, `order/${body.transactionID}`);
+    const currencyData = ref(database, `orders/${body.transactionID}`);
     onValue(currencyData, (snapshot) => {
         const data = snapshot.val();
         clientResponse.send(JSON.stringify(data));
@@ -131,13 +131,13 @@ app.put('/order', function(clientRequest, clientResponse) {
     })
 })
 
-app.post('/order', function(clientRequest, clientResponse) {
+app.post('/orders', function(clientRequest, clientResponse) {
     const body = clientRequest.body;
     console.log(body);
-    update(ref(database, `order/${body.transactionID}`), {
+    update(ref(database, `orders/${body.transactionID}`), {
         status: body.status
     });
-    const currencyData = ref(database, `order/${body.transactionID}`);
+    const currencyData = ref(database, `orders/${body.transactionID}`);
     onValue(currencyData, (snapshot) => {
         const data = snapshot.val();
         clientResponse.send(JSON.stringify(data));
