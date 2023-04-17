@@ -62,11 +62,52 @@ app.get('/usersList', function(clientRequest, clientResponse) {
 })
 
 app.get('/order', function(clientRequest, clientResponse) {
-    const targetQuery = clientRequest.query;
+    const currencyList = ref(database, 'order/');
+    onValue(currencyList, (snapshot) => {
+        const data = snapshot.val();
+        clientResponse.send(JSON.stringify(data));
+    }, {
+        onlyOnce: true
+    });
+})
+
+app.put('/order', function(clientRequest, clientResponse) {
+    const body = clientRequest.body;
+    console.log(body);
+    set(ref(database, `order/${body.transactionID}`), {
+        transactionID: body.transactionID,
+        currency: body.currency,
+        fromSum: body.fromSum,
+        toSum: body.toSum,
+        coupon: body.coupon,
+        wallet: body.wallet,
+        cardName: body.cardName,
+        login: body.login,
+        timestamp: body.timestamp,
+        status: body.status
+    });
+    const currencyData = ref(database, `order/${body.transactionID}`);
+    onValue(currencyData, (snapshot) => {
+        const data = snapshot.val();
+        clientResponse.send(JSON.stringify(data));
+    }, {
+        onlyOnce: true
+    })
 })
 
 app.post('/order', function(clientRequest, clientResponse) {
-    const targetQuery = clientRequest.body;
+    const body = clientRequest.body;
+    console.log(body);
+    update(ref(database, `order/${body.transactionID}`), {
+        status: body.status
+    });
+    const currencyData = ref(database, `order/${body.transactionID}`);
+    onValue(currencyData, (snapshot) => {
+        const data = snapshot.val();
+        clientResponse.send(JSON.stringify(data));
+    }, {
+        onlyOnce: true
+    })
 })
 
 app.get('/', function(clientRequest, clientResponse) {
