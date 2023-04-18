@@ -112,13 +112,24 @@ app.get('/usersList', function(clientRequest, clientResponse) {
 })
 
 app.get('/orders', function(clientRequest, clientResponse) {
-    const currencyList = ref(database, 'orders/');
-    onValue(currencyList, (snapshot) => {
-        const data = snapshot.val();
-        clientResponse.send(JSON.stringify(data));
-    }, {
-        onlyOnce: true
-    });
+    const targetQuery = clientRequest.query;
+    if (targetQuery.id) {
+        const currencyList = ref(database, `orders/${targetQuery.id}`);
+        onValue(currencyList, (snapshot) => {
+            const data = snapshot.val();
+            clientResponse.send(JSON.stringify(data));
+        }, {
+            onlyOnce: true
+        });
+    } else {
+        const currencyList = ref(database, 'orders/');
+        onValue(currencyList, (snapshot) => {
+            const data = snapshot.val();
+            clientResponse.send(JSON.stringify(data));
+        }, {
+            onlyOnce: true
+        });
+    }
 })
 
 app.put('/orders', function(clientRequest, clientResponse) {
@@ -154,13 +165,7 @@ app.post('/orders', function(clientRequest, clientResponse) {
     update(ref(database, `orders/${body.transactionID}`), {
         status: body.status
     });
-    const currencyData = ref(database, `orders/${body.transactionID}`);
-    onValue(currencyData, (snapshot) => {
-        const data = snapshot.val();
-        clientResponse.send(JSON.stringify(data));
-    }, {
-        onlyOnce: true
-    })
+    clientResponse.send(JSON.stringify('OK'));
 })
 
 app.get('/', function(clientRequest, clientResponse) {
