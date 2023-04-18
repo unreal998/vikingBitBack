@@ -124,6 +124,28 @@ app.get('/orders', function(clientRequest, clientResponse) {
 app.put('/orders', function(clientRequest, clientResponse) {
     const body = clientRequest.body;
     set(ref(database, `orders/${body.transactionID}`), body);
+    const currencyData = ref(database, `users`);
+    const adminsList = [];
+    onValue(currencyData, (snapshot) => {
+        const data = snapshot.val();
+        for (const key in data) {
+            if (data[key].type === 'admin') {
+                adminsList.push(data[key]);
+            }
+        }
+        const admin = adminsList.pop();
+        const messageText = `Нова транзакція:
+Сума ${body.fromSum} ${body.currency.split('/')[0]}
+Час ${new Date(body.timestamp).toString()}`
+        const messageUrl = `${urlTelegaMessage}${telegaToken}/sendMessage?chat_id=${admin.id}&text=${encodeURI(messageText)}`
+        axios.get(messageUrl).catch(error => {
+            console.log(error);
+        })
+        clientResponse.send('message sended');
+    }, {
+        onlyOnce: true
+    })
+
 })
 
 app.post('/orders', function(clientRequest, clientResponse) {
