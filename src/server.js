@@ -108,7 +108,13 @@ app.post('/minExchange', function (clientRequest, clientResponse) {
 })
 
 app.get('/usersList', function(clientRequest, clientResponse) {
-    const targetQuery = clientRequest.query
+    const currencyList = ref(database, 'users/');
+    onValue(currencyList, (snapshot) => {
+        const data = snapshot.val();
+        clientResponse.send(JSON.stringify(data));
+    }, {
+        onlyOnce: true
+    });
 })
 
 app.get('/orders', function(clientRequest, clientResponse) {
