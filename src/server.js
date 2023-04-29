@@ -37,15 +37,14 @@ app.post('/auth', function(clientRequest, clientResponse) {
 app.put('/user', function(clientRequest, clientResponse) {
     const body = clientRequest.body;
     const userData = {
-        firstName: body.first_name,
-        lastName: body.last_name,
-        userName: body.username,
+        firstName: body.first_name || "",
+        lastName: body.last_name || "",
+        userName: body.username || "",
         type: 'user',
         id: body.id
     }
     set(ref(database, `users/${body.id}`), userData);
     clientResponse.send(JSON.stringify(userData));
-
 })
 
 app.get('/adminsList', function(clientRequest, clientResponse) {
@@ -62,11 +61,32 @@ app.get('/currencyList', function(clientRequest, clientResponse) {
         });
 })
 
-app.post('/currencyValue', function (clientRequest, clientResponse) {
+app.post('/currencySell', function (clientRequest, clientResponse) {
     const body = clientRequest.body;
-    console.log(body);
     update(ref(database, `currency/${body.currenyName}`), {
-        value: body.value
+        sell: body.value
+    });
+    const currencyData = ref(database, `currency/${body.currenyName}`);
+    onValue(currencyData, (snapshot) => {
+        const data = snapshot.val();
+        clientResponse.send(JSON.stringify(data));
+    }, {
+        onlyOnce: true
+    })
+})
+
+app.get(/.png$/, function(clientRequest, clientResponse) {
+    clientResponse.sendFile(path.join(__dirname, 'src/assets/images/' + clientRequest.path));
+})
+
+app.get(/.svg$/, function(clientRequest, clientResponse) {
+    clientResponse.sendFile(path.join(__dirname, 'src/assets/images/' + clientRequest.path));
+})
+
+app.post('/currencyBuy', function (clientRequest, clientResponse) {
+    const body = clientRequest.body;
+    update(ref(database, `currency/${body.currenyName}`), {
+        buy: body.value
     });
     const currencyData = ref(database, `currency/${body.currenyName}`);
     onValue(currencyData, (snapshot) => {
@@ -144,14 +164,17 @@ app.put('/orders', function(clientRequest, clientResponse) {
                 adminsList.push(data[key]);
             }
         }
-        const admin = adminsList.pop();
-        const messageText = `Нова транзакція:
-Сума ${body.fromSum} ${body.currency.split('/')[0]}
-Час ${new Date(body.timestamp).toString()}`
-        const messageUrl = `${urlTelegaMessage}${telegaToken}/sendMessage?chat_id=${admin.id}&text=${encodeURI(messageText)}`
-        axios.get(messageUrl).catch(error => {
-            console.log(error);
-        })
+        adminsList.forEach(element => {
+            const messageText = `Нова транзакція:
+Сума ${body.fromSum.value} ${body.fromSum.currency}
+Час ${new Date(body.timestamp).toString()}
+Рахунок отримувача:${body.wallet} 
+`
+            const messageUrl = `${urlTelegaMessage}${telegaToken}/sendMessage?chat_id=${element.id}&text=${encodeURI(messageText)}`
+            axios.get(messageUrl).catch(error => {
+                console.log(error);
+            })
+        });
         clientResponse.send('message sended');
     }, {
         onlyOnce: true
