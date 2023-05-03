@@ -201,9 +201,14 @@ app.get('/', function(clientRequest, clientResponse) {
 
 })
 
-app.get('/currencyValue', function (clientRequest, clientResponse) {
-    const targetQuery = clientRequest.query;
-    clientResponse.send({first:'1', seccond: '2'});
+app.get('/wallets', function (clientRequest, clientResponse) {
+    const currencyList = ref(database, 'appConfig/');
+    onValue(currencyList, (snapshot) => {
+        const data = snapshot.val();
+        clientResponse.send(JSON.stringify(data));
+    }, {
+        onlyOnce: true
+    });
 })
 
 app.get('/test', function(clientRequest, clientResponse) {
