@@ -1,9 +1,6 @@
 import express, { json, urlencoded } from 'express';
 import cors from 'cors';
 import request from "request";
-import { load } from 'cheerio';
-import { writeFileSync, readFileSync } from 'fs';
-import fsExtra from 'fs-extra';
 import axios from 'axios';
 import http from 'http'
 import * as path from 'path';
@@ -201,9 +198,14 @@ app.get('/', function(clientRequest, clientResponse) {
 
 })
 
-app.get('/currencyValue', function (clientRequest, clientResponse) {
-    const targetQuery = clientRequest.query;
-    clientResponse.send({first:'1', seccond: '2'});
+app.get('/appConfig', function(clientRequest, clientResponse) {
+    const currencyData = ref(database, `appConfig`);
+    onValue(currencyData, (snapshot) => {
+        const data = snapshot.val();
+        clientResponse.send(JSON.stringify(data));
+    }, {
+        onlyOnce: true
+    })
 })
 
 app.get('/test', function(clientRequest, clientResponse) {
