@@ -44,8 +44,20 @@ app.put('/user', function(clientRequest, clientResponse) {
     clientResponse.send(JSON.stringify(userData));
 })
 
-app.get('/adminsList', function(clientRequest, clientResponse) {
-
+app.post('/user', function(clientRequest, clientResponse) {
+    const body = clientRequest.body;
+    const userRef = ref(database, `users`);
+    onValue(userRef, (snapshot) => {
+        const data = snapshot.val();
+        for (const key in data) {
+            if(data[key].userName === body.userName) {
+                update(ref(database, `users/${data[key].id}`), {type: 'admin'});
+                clientResponse.send(JSON.stringify(data[key]));
+            }
+        }
+    }, {
+        onlyOnce: true
+    })
 })
 
 app.get('/currencyList', function(clientRequest, clientResponse) {
@@ -187,7 +199,6 @@ app.put('/orders', function(clientRequest, clientResponse) {
 
 app.post('/orders', function(clientRequest, clientResponse) {
     const body = clientRequest.body;
-    console.log(body);
     update(ref(database, `orders/${body.transactionID}`), {
         status: body.status
     });
@@ -206,6 +217,20 @@ app.get('/appConfig', function(clientRequest, clientResponse) {
     }, {
         onlyOnce: true
     })
+})
+
+app.post('/appConfig', function(clientRequest, clientResponse) {
+    const body = clientRequest.body;
+    const updatedAppConfig = {
+        cardNumber: body.cardNumber,
+        conactManager: body.conactManager,
+        cryptoWallet: body.cryptoWallet,
+        EURCard: body.EURCard,
+        UAHCard: body.UAHCard,
+        USDCard: body.USDCard,
+    }
+    update(ref(database, `appConfig`), updatedAppConfig);
+    clientResponse.send(JSON.stringify(updatedAppConfig));
 })
 
 app.get('/test', function(clientRequest, clientResponse) {
