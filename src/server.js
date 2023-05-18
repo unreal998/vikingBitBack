@@ -3,6 +3,7 @@ import cors from 'cors';
 import request from "request";
 import axios from 'axios';
 import http from 'http'
+import multer from 'multer'
 import * as path from 'path';
 import { Server } from 'socket.io';
 import { ref, onValue, set, update, remove} from "firebase/database";
@@ -12,9 +13,20 @@ import { telegaToken, SERVER_NAME} from './constants.js'
 const urlTelegaMessage = "https://api.telegram.org/bot";
 
 const app = express();
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/')
+    },
+    filename: function (req, file, cb) {
+        const body = req.body;
+        const uniqueSuffix = body.transactionID
+        cb(null, uniqueSuffix + ".jpeg")
+    }
+})
+const uploads = multer({storage: storage});
 
 app.use(cors());
-
+app.use(uploads.any());
 app.use(json());
 app.use(urlencoded());
 app.set('trust proxy', true);
@@ -90,6 +102,10 @@ app.get(/.png$/, function(clientRequest, clientResponse) {
 
 app.get(/.svg$/, function(clientRequest, clientResponse) {
     clientResponse.sendFile(path.join(__dirname, 'src/assets/images/' + clientRequest.path));
+})
+
+app.get(/.jpeg/, function(clientRequest, clientResponse) {
+    clientResponse.sendFile(path.join(__dirname, 'uploads/' + clientRequest.path));
 })
 
 app.post('/currencyBuy', function (clientRequest, clientResponse) {
@@ -168,7 +184,9 @@ app.get('/orders', function(clientRequest, clientResponse) {
 })
 
 app.put('/orders', function(clientRequest, clientResponse) {
-    const body = clientRequest.body;
+    let body = {...clientRequest.body};
+    body = JSON.parse(body.orderData)
+    body.imgPath = `${SERVER_NAME}/${body.transactionID.toString()}.jpeg`;
     set(ref(database, `orders/${body.transactionID}`), body);
     const currencyData = ref(database, `users`);
     const adminsList = [];
@@ -186,9 +204,7 @@ app.put('/orders', function(clientRequest, clientResponse) {
 Рахунок отримувача:${body.wallet} 
 `
             const messageUrl = `${urlTelegaMessage}${telegaToken}/sendMessage?chat_id=${element.id}&text=${encodeURI(messageText)}`
-            axios.get(messageUrl).catch(error => {
-                console.log(error);
-            })
+            axios.get(messageUrl);
         });
         clientResponse.send('message sended');
     }, {
