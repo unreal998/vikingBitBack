@@ -112,6 +112,36 @@ app.post('/currencyBuy', function (clientRequest, clientResponse) {
     })
 })
 
+app.post('/currencyMultiplierSell', function (clientRequest, clientResponse) {
+    const body = clientRequest.body;
+    const currencyPairs = body.currenyName.split('-');
+    update(ref(database, `exchangeConfig/${currencyPairs[0]}/${currencyPairs[1]}`), {
+        sellMultiplier: body.value
+    });
+    const currencyData = ref(database, `exchangeConfig/${currencyPairs[0]}`);
+    onValue(currencyData, (snapshot) => {
+        const data = snapshot.val();
+        clientResponse.send(JSON.stringify(data));
+    }, {
+        onlyOnce: true
+    })
+})
+
+app.post('/currencyMultiplierBuy', function (clientRequest, clientResponse) {
+    const body = clientRequest.body;
+    const currencyPairs = body.currenyName.split('-');
+    update(ref(database, `exchangeConfig/${currencyPairs[0]}/${currencyPairs[1]}`), {
+        buyMultiplier: body.value
+    });
+    const currencyData = ref(database, `exchangeConfig/${currencyPairs[0]}`);
+    onValue(currencyData, (snapshot) => {
+        const data = snapshot.val();
+        clientResponse.send(JSON.stringify(data));
+    }, {
+        onlyOnce: true
+    })
+})
+
 app.get(/.png$/, function(clientRequest, clientResponse) {
     clientResponse.sendFile(path.join(__dirname, 'src/assets/images/' + clientRequest.path));
 })
