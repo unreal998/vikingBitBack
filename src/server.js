@@ -84,10 +84,26 @@ app.get('/currencyList', function(clientRequest, clientResponse) {
 
 app.post('/currencySell', function (clientRequest, clientResponse) {
     const body = clientRequest.body;
-    update(ref(database, `currency/${body.currenyName}`), {
+    const currencyPairs = body.currenyName.split('-');
+    update(ref(database, `exchangeConfig/${currencyPairs[0]}/${currencyPairs[1]}`), {
         sell: body.value
     });
-    const currencyData = ref(database, `currency/${body.currenyName}`);
+    const currencyData = ref(database, `exchangeConfig/${currencyPairs[0]}`);
+    onValue(currencyData, (snapshot) => {
+        const data = snapshot.val();
+        clientResponse.send(JSON.stringify(data));
+    }, {
+        onlyOnce: true
+    })
+})
+
+app.post('/currencyBuy', function (clientRequest, clientResponse) {
+    const body = clientRequest.body;
+    const currencyPairs = body.currenyName.split('-');
+    update(ref(database, `exchangeConfig/${currencyPairs[0]}/${currencyPairs[1]}`), {
+        buy: body.value
+    });
+    const currencyData = ref(database, `exchangeConfig/${currencyPairs[0]}`);
     onValue(currencyData, (snapshot) => {
         const data = snapshot.val();
         clientResponse.send(JSON.stringify(data));
@@ -106,20 +122,6 @@ app.get(/.svg$/, function(clientRequest, clientResponse) {
 
 app.get(/.jpeg/, function(clientRequest, clientResponse) {
     clientResponse.sendFile(path.join(__dirname, 'uploads/' + clientRequest.path));
-})
-
-app.post('/currencyBuy', function (clientRequest, clientResponse) {
-    const body = clientRequest.body;
-    update(ref(database, `currency/${body.currenyName}`), {
-        buy: body.value
-    });
-    const currencyData = ref(database, `currency/${body.currenyName}`);
-    onValue(currencyData, (snapshot) => {
-        const data = snapshot.val();
-        clientResponse.send(JSON.stringify(data));
-    }, {
-        onlyOnce: true
-    })
 })
 
 app.post('/currencyReserves', function (clientRequest, clientResponse) {
@@ -154,6 +156,16 @@ app.post('/minExchange', function (clientRequest, clientResponse) {
 
 app.get('/usersList', function(clientRequest, clientResponse) {
     const currencyList = ref(database, 'users/');
+    onValue(currencyList, (snapshot) => {
+        const data = snapshot.val();
+        clientResponse.send(JSON.stringify(data));
+    }, {
+        onlyOnce: true
+    });
+})
+
+app.get('/exchangeConfig', function(clientRequest, clientResponse) {
+    const currencyList = ref(database, `exchangeConfig`);
     onValue(currencyList, (snapshot) => {
         const data = snapshot.val();
         clientResponse.send(JSON.stringify(data));
