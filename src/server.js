@@ -9,9 +9,12 @@ import { Server } from 'socket.io';
 import { ref, onValue, set, update, remove} from "firebase/database";
 import database from './firebaseDatabase.js';
 import { telegaToken, SERVER_NAME} from './constants.js'
+import BinanceAPI from './binanceAPI.js';
 
 const urlTelegaMessage = "https://api.telegram.org/bot";
 
+
+const TWO_MINUTES_IN_MILISECONDS = 120000
 const app = express();
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -30,6 +33,11 @@ app.use(uploads.any());
 app.use(json());
 app.use(urlencoded());
 app.set('trust proxy', true);
+
+setInterval(() => {
+    BinanceAPI.tickerBook({symbols: ['BTCUSDT', 'ETHUSDT', 'USDCUSDT']})
+}, TWO_MINUTES_IN_MILISECONDS); 
+
 const __dirname = path.resolve();
 
 app.post('/auth', function(clientRequest, clientResponse) {
