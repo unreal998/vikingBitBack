@@ -11,6 +11,7 @@ import { ref, onValue, set, update, remove} from "firebase/database";
 import database from './firebaseDatabase.js';
 import { telegaToken, SERVER_NAME} from './constants.js'
 import BinanceAPI from './binanceAPI.js';
+import fs from 'fs';
 
 const urlTelegaMessage = "https://api.telegram.org/bot";
 
@@ -304,7 +305,15 @@ app.get('/test', function(clientRequest, clientResponse) {
     clientResponse.end("Hello world");
 });
 
-const server = https.createServer(app);
+const key = fs.readFileSync('src/cert/key.key', 'utf-8');
+const cert = fs.readFileSync('src/cert/viking-bit.com.crt', 'utf-8');
+
+const params = {
+    key,
+    cert
+}
+
+const server = https.createServer(params, app);
 
 const users = {}
 
