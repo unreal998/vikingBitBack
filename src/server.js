@@ -3,6 +3,7 @@ import cors from 'cors';
 import request from "request";
 import axios from 'axios';
 import http from 'http'
+import https from 'https'
 import multer from 'multer'
 import * as path from 'path';
 import { Server } from 'socket.io';
@@ -303,7 +304,7 @@ app.get('/test', function(clientRequest, clientResponse) {
     clientResponse.end("Hello world");
 });
 
-const server = http.createServer(app);
+const server = https.createServer(app);
 
 const users = {}
 
