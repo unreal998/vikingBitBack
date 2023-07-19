@@ -160,6 +160,10 @@ app.get(/.svg$/, function(clientRequest, clientResponse) {
     clientResponse.sendFile(path.join(__dirname, 'src/assets/images/' + clientRequest.path));
 })
 
+app.get(/.jpg$/, function(clientRequest, clientResponse) {
+    clientResponse.sendFile(path.join(__dirname, 'src/assets/images/' + clientRequest.path));
+})
+
 app.get(/.jpeg/, function(clientRequest, clientResponse) {
     clientResponse.sendFile(path.join(__dirname, 'uploads/' + clientRequest.path));
 })
@@ -305,9 +309,8 @@ app.get('/test', function(clientRequest, clientResponse) {
     clientResponse.end("Hello world");
 });
 
-const key = fs.readFileSync('src/cert/key.key', 'utf-8');
-const cert = fs.readFileSync('src/cert/viking-bit.com.crt', 'utf-8');
-
+const key = fs.readFileSync('./src/cert/key.key', 'utf-8');
+const cert = fs.readFileSync('./src/cert/viking-bit.com.crt', 'utf-8');
 const params = {
     key,
     cert
